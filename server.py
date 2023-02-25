@@ -15,7 +15,7 @@ while True:
             data = clientSocket.recv(4096)
             if not data:
                 break
-            filename = data[:data.index(b'\x00')].decode('utf-8')
+            filename = "newfile.txt"
             filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
             filedata = data[data.index(b'\x01')+1:]
             with open(filename, 'wb') as f:
