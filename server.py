@@ -1,11 +1,25 @@
 import socket
 
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.bind((socket.gethostname(),6060))
+port=6060
+host="127.0.0.1"
+s.bind((host,port))
 s.listen(5)
-
+files=[]
+count=0
 while True:
     clientSocket, address=s.accept()
     print(f"connection established from adress {address}")
-    clientSocket.send(bytes("Welcome to the server!!!","utf-8") )
-    clientSocket.close()
+    count+=1
+    while True:
+            data = clientSocket.recv(4096)
+            if not data:
+                break
+            filename = data[:data.index(b'\x00')].decode('utf-8')
+            filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
+            filedata = data[data.index(b'\x01')+1:]
+            with open(filename, 'wb') as f:
+                f.write(filedata)
+    print(count) 
+    if count>1:
+         break           
