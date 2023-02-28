@@ -15,4 +15,4 @@ filesize = len(data)
 header = filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
 s.sendall(header + data)
 
-s.close()
+s.close() 
