@@ -1,4 +1,5 @@
 import socket
+import tqdm
 
 def send_files(s:socket):
     #something 
@@ -10,8 +11,11 @@ def send_files(s:socket):
     with open(filename, 'rb') as f:
         data = f.read()
     filesize = len(data)
+    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
     header = filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
     s.sendall(header + data)
+    progress.update(filesize)
+    print("sent")
 
 def download_files():
      #something 
@@ -25,7 +29,7 @@ def breakConnection(client_server:socket):
     action="!DISCONNECT"
     #client_server.send("!DISCONNECT".encode("utf-8"))
     header =action.encode("utf-8")+b'\x02'
-    print("sent")
+    
     client_server.sendall(header)
 
 
@@ -36,9 +40,7 @@ def prompt():
     print("(3) download files.")
     print ("(4) exit")
     
-    #option=str(input(""))
-
-    #return option
+    
 
 def main():
     global port,host

@@ -3,12 +3,6 @@ import threading
 import tqdm
 
 def Recieved_files(conn:socket,addy):
-    # filename = "myfile.txt" #data[data.index(b'\x02')+1:data.index(b'\x00')].decode('utf-8')
-    # filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
-    # filedata = data[data.index(b'\x01')+1:]
-    # with open(filename, 'wb') as f:
-    #     f.write(filedata)
-    # print("done")
     
     while True:
             data = conn.recv(4096)
@@ -17,12 +11,14 @@ def Recieved_files(conn:socket,addy):
             filename = "myfile.txt"
             filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
             filedata = data[data.index(b'\x01')+1:]
+            progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
             with open(filename, 'wb') as f:
                 f.write(filedata)
+                progress.update(len(filedata))
                 
             break
 
-    print("done")    
+    print(f" upload done from {addy}")    
 
 
 def Display_files():
@@ -36,9 +32,9 @@ def handle_client(conn,addy):
     
     msg=conn.recv(4096)
         
-    print(msg.decode("utf-8"))
+   
     msg=msg[:msg.index(b'\x02')].decode('utf-8')
-    print(msg)
+    
     connected=True
     while connected:
        
@@ -47,14 +43,16 @@ def handle_client(conn,addy):
             connected=False
         elif msg=="send":
             Recieved_files(conn,addy)
-            print("terminated")
+            
             msg=conn.recv(4096)
-            print("here")
-            print(msg.decode("utf-8"))
+            
+            
         elif msg=="view":
             Display_files()
+            msg=conn.recv(4096)
         elif msg=="request":         
             upload_files()
+            msg=conn.recv(4096)
 
         else: break    
             
