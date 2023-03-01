@@ -2,13 +2,29 @@ import socket
 import threading
 import tqdm
 
-def Recieved_files(data:bytes):
-    filename = "myfile.txt" #data[data.index(b'\x02')+1:data.index(b'\x00')].decode('utf-8')
-    filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
-    filedata = data[data.index(b'\x01')+1:]
-    with open(filename, 'wb') as f:
-        f.write(filedata)
-    print("done")
+def Recieved_files(conn:socket,addy):
+    # filename = "myfile.txt" #data[data.index(b'\x02')+1:data.index(b'\x00')].decode('utf-8')
+    # filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
+    # filedata = data[data.index(b'\x01')+1:]
+    # with open(filename, 'wb') as f:
+    #     f.write(filedata)
+    # print("done")
+    
+    while True:
+            data = conn.recv(4096)
+            if not data:
+                break
+            filename = "myfile.txt"
+            filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
+            filedata = data[data.index(b'\x01')+1:]
+            with open(filename, 'wb') as f:
+                f.write(filedata)
+                
+            break
+
+    print("done")    
+
+
 def Display_files():
     print("h")
 def upload_files():
@@ -17,26 +33,31 @@ def upload_files():
 
 def handle_client(conn,addy):
     print(f"[ NEW CONNECTION ] at {addy} connected")
-
+    
+    msg=conn.recv(4096)
+        
+    print(msg.decode("utf-8"))
+    msg=msg[:msg.index(b'\x02')].decode('utf-8')
+    print(msg)
     connected=True
     while connected:
-        msg=conn.recv(4096)
-        msg=msg[:msg.index(b'\x02')].decode('utf-8')
+       
       
         if msg=="!DISCONNECT":
             connected=False
-        else:
-            while True:
-                data = conn.recv(4096)
-                if not data:
-                    break
-                function=data[:data.index(b'\x02')].decode('utf-8')
-                if function=="send":
-                    Recieved_files(data)
-                elif function=="view":
-                    Display_files()
-                elif function=="request":         
-                    upload_files()
+        elif msg=="send":
+            Recieved_files(conn,addy)
+            print("terminated")
+            msg=conn.recv(4096)
+            print("here")
+            print(msg.decode("utf-8"))
+        elif msg=="view":
+            Display_files()
+        elif msg=="request":         
+            upload_files()
+
+        else: break    
+            
 
     print(f"{addy} DISCONNECTED")
     conn.close()        

@@ -1,0 +1,14 @@
+A random sample of size 8 from an unknown distribution with a population mean µ 
+has yielded the following observations:
+ 0.35 ,1.15, 0.40, 0.08, 0.03, 0.20, 0.10, 0.15 
+The sample mean and standard deviation were calculated as 
+0.3075 and 0.3642 respectively.The sample averages for each of 1000 bootstrap samples were calculated,
+and then ordered from smallest tolargest.The following are some of the ordered results obtained:
+________________________________________________
+SampleNo:    1   |  10   |  25   | 50   | 100   |
+SampleAve: 0.076 | 0.106 | 0.125 |0.139 | 0.163 |
+________________________________________________
+SampleNo:  900   | 950   | 975   | 990  |  1000 |
+SampleAve:0.470  |0.541  |0.579  |0.651 | 0.813 |
+________________________________________________|
+Construct a 95% confidence interval for the population mean based on the bootstrap data provided?

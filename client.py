@@ -5,10 +5,12 @@ def send_files(s:socket):
     print("enter name of file you would like to send !")
     filename=str(input(""))
     action="send"
+    header =action.encode("utf-8")+b'\x02'
+    s.sendall(header)
     with open(filename, 'rb') as f:
         data = f.read()
     filesize = len(data)
-    header =action.encode("utf-8")+ b'\x02'+ filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
+    header = filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
     s.sendall(header + data)
 
 def download_files():
@@ -23,6 +25,7 @@ def breakConnection(client_server:socket):
     action="!DISCONNECT"
     #client_server.send("!DISCONNECT".encode("utf-8"))
     header =action.encode("utf-8")+b'\x02'
+    print("sent")
     client_server.sendall(header)
 
 
@@ -65,7 +68,7 @@ def main():
             print("invalid input")                
         
         prompt()
-        option=str(input(""))
+        
 
     client_server.close()     
 
