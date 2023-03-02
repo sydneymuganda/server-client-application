@@ -42,14 +42,18 @@ def Display_files(conn:socket,addy):
     #print(s)        
     conn.sendall(s.encode("utf-8"))
 def upload_files(conn:socket,addy):
-    while True:
-        
-        with conn:
-            
-   
-           #S conn.sendall(header + filedata)
-            break
-    print("h")
+
+    filename=conn.recv(4096)
+    my_filename=filename[:filename.index(b'\x04')]
+    #print(filename)
+    filename = directory+my_filename
+    with open(filename, 'rb') as f:
+        filedata = f.read()
+    filesize = len(filedata)
+
+    header = my_filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
+    conn.sendall(header + filedata)
+    #print("h")
 
 
 def handle_client(conn,addy):
@@ -78,8 +82,9 @@ def handle_client(conn,addy):
             msg=conn.recv(4096)
             msg=msg[:msg.index(b'\x02')].decode('utf-8')
 
-        elif msg=="request":         
-            upload_files()
+        elif msg=="request":   
+             
+            upload_files(conn,addy)
             msg=conn.recv(4096)
             msg=msg[:msg.index(b'\x02')].decode('utf-8')
 

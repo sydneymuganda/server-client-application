@@ -17,9 +17,34 @@ def send_files(s:socket):
     progress.update(filesize)
     print("sent")
 
-def download_files():
+def download_files(s:socket):
      #something 
-      print("h")
+
+     print("enter name of file you would like to download !")
+     filename=str(input(""))
+     action="request" 
+     header =action.encode("utf-8")+b'\x02' 
+     s.sendall(header)
+     header=filename.encode("utf-8")+b'\x04' 
+     s.sendall(header)
+     
+     data = b''
+     while True:
+        recv = s.recv(4096)
+        if not recv:
+            break
+        data += recv
+        break
+     
+
+     filename =data[:data.index(b'\x00')].decode("utf-8")
+     filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
+     filedata = data[data.index(b'\x01')+1:]
+
+     with open(filename, 'wb') as f:
+        f.write(filedata)
+
+     #print("h")
 
 def view_files(s:socket):
      
@@ -73,7 +98,7 @@ def main():
         elif option=="2":
              view_files(client_server)
         elif option=="3":
-            download_files()
+            download_files(client_server)
         elif option=="4":
             breakConnection(client_server)
             break
