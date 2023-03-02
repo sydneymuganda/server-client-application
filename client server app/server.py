@@ -2,8 +2,6 @@ import socket
 import threading
 import tqdm
 
-files={}
-directory="server_files"+r"/"
 def Recieved_files(conn:socket,addy):
     
     while True:
@@ -25,13 +23,7 @@ def Recieved_files(conn:socket,addy):
 
 def Display_files():
     print("h")
-def upload_files(conn:socket,addy):
-    while True:
-        
-        with conn:
-            print(f"connection established from adress {address}")
-   
-            conn.sendall(header + filedata)
+def upload_files():
     print("h")
 
 

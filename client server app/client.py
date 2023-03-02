@@ -21,16 +21,9 @@ def download_files():
      #something 
       print("h")
 
-def view_files(s:socket):
+def view_files():
     #something 
-
-    action="view"
-    header =action.encode("utf-8")+b'\x02'
-    s.sendall(header)
-
-    message=s.recv(4096)
-    print(message.decode("utf-8"))
-    
+     print("h")
 
 def breakConnection(client_server:socket):
     action="!DISCONNECT"
@@ -67,7 +60,7 @@ def main():
         if option=="1":
             send_files(client_server)
         elif option=="2":
-             view_files(client_server)
+             view_files()
         elif option=="3":
             download_files()
         elif option=="4":
