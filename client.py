@@ -22,19 +22,23 @@ def download_files():
       print("h")
 
 def view_files(s:socket):
-    #something 
+     
 
     action="view"
     header =action.encode("utf-8")+b'\x02'
     s.sendall(header)
+    
 
+    
     message=s.recv(4096)
+    
+    print("----AVAILABLE FILES----")
     print(message.decode("utf-8"))
     
 
 def breakConnection(client_server:socket):
     action="!DISCONNECT"
-    #client_server.send("!DISCONNECT".encode("utf-8"))
+    
     header =action.encode("utf-8")+b'\x02'
     
     client_server.sendall(header)

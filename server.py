@@ -2,7 +2,8 @@ import socket
 import threading
 import tqdm
 
-files={}
+global files 
+files=[]
 directory="server_files"+r"/"
 def Recieved_files(conn:socket,addy):
     
@@ -10,7 +11,10 @@ def Recieved_files(conn:socket,addy):
             data = conn.recv(4096)
             if not data:
                 break
-            filename = "myfile.txt"
+            filename=data[:data.index(b'\x00')].decode("utf-8")
+            files.append(filename)
+           # print(files)
+            filename = directory+filename
             filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
             filedata = data[data.index(b'\x01')+1:]
             progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
@@ -23,15 +27,28 @@ def Recieved_files(conn:socket,addy):
     print(f" upload done from {addy}")    
 
 
-def Display_files():
-    print("h")
+def Display_files(conn:socket,addy):
+    l=len(files)
+    s=""
+    #print(l)
+    #print(files)
+    count=0
+    if l<1:
+        s="no files available"
+    else:
+        for file in files:
+            count=+1
+            s=f"--->({count})."+file+"\n"+s
+    #print(s)        
+    conn.sendall(s.encode("utf-8"))
 def upload_files(conn:socket,addy):
     while True:
         
         with conn:
-            print(f"connection established from adress {address}")
+            
    
-            conn.sendall(header + filedata)
+           #S conn.sendall(header + filedata)
+            break
     print("h")
 
 
@@ -48,19 +65,23 @@ def handle_client(conn,addy):
        
       
         if msg=="!DISCONNECT":
-            connected=False
+            break
+            
         elif msg=="send":
             Recieved_files(conn,addy)
             
             msg=conn.recv(4096)
-            
+            msg=msg[:msg.index(b'\x02')].decode('utf-8')
             
         elif msg=="view":
-            Display_files()
+            Display_files(conn,addy)
             msg=conn.recv(4096)
+            msg=msg[:msg.index(b'\x02')].decode('utf-8')
+
         elif msg=="request":         
             upload_files()
             msg=conn.recv(4096)
+            msg=msg[:msg.index(b'\x02')].decode('utf-8')
 
         else: break    
             
