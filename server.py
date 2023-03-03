@@ -1,6 +1,7 @@
 import socket
 import threading
 import tqdm
+from FileIO import File
 
 global files 
 files=[]

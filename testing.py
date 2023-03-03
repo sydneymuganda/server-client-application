@@ -1,15 +1,6 @@
-a=["apple"]
-l=len(a)
-s=""
-if l<1:
-    s="no files available"
-else:
-    for file in a:
-        s=file+"\n"+s
+import database as  db  
 
-print(s)
-# print(len(a))
-# a.append(1)
-# print(len(a))
-# a.append(1)
-# print(len(a))
+db.Create()
+
+
+
