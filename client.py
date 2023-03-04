@@ -53,9 +53,9 @@ def download_files(s:socket):
      action="request" 
      header =action.encode("utf-8")+b'\x02' 
      s.sendall(header)
-     header=filename.encode("utf-8")+b'\x04' 
+     header=filename.encode("utf-8")+b'\x04'+username.encode("utf-8") 
      s.sendall(header)
-     s.sendall(username.encode("utf-8"))
+     
 
 
      print(s.recv(4096).decode("utf-8"))
@@ -79,8 +79,14 @@ def download_files(s:socket):
          print(acess_control)
          return     
      
+     data = b''
+     while True:
+        recv = s.recv(4096)
+        if not recv:
+            break
+        data += recv
+        break
      
-     data = s.recv(4096)
         
      
 

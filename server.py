@@ -56,30 +56,34 @@ def Display_files(conn:socket,addy):
         s="no files available"
     else:
         for file in my_records:
-            count=+1
-            s=f"--->({count})."+file[2]+"\n"+s
+            count+=1
+            s=s+f"--->({count})"+file[2]+"\n"
     #print(s)        
     conn.sendall(s.encode("utf-8"))
 
 def upload_files(conn:socket,addy):
-
+    print("a")
     filename=conn.recv(4096)
-    user=conn.recv(4096).decode("utf-8")
-    my_filename=filename[:filename.index(b'\x04')].decode("utf-8")
+    print("b")
     
+    my_filename=filename[:filename.index(b'\x04')].decode("utf-8")
+    user=filename[filename.index(b'\x04')+1:].decode("utf-8")
+    
+    print(user,my_filename)
     
     my_records=db.Retrieve_Files_by_filename(user,my_filename)
-
+    
     l=len(my_records)
     count=(0)
+    s=""
     if l<1:
         s="no files available"
         return
     else:
         prompt="choose the file you would like to download!\n"
         for file in my_records:
-            count=+1
-            s=f"--->({count})."+file[2]+"\n"+s
+            count+=1
+            s=s+f"--->({count})"+file[2]+"\n"
         s=prompt+s    
 
     conn.sendall(s.encode("utf-8"))    
