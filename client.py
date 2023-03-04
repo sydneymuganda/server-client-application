@@ -1,52 +1,81 @@
+"""
+This script creates the application 
+to allow a client to send,recieve and view files to and from a server
+
+Author: Sydney Muganda (mgnsyd001@myuct.ac.za)
+Date: 20th february 2023
+"""
 import socket
 import tqdm
 
 def password_prompt():
+    ''''
+    This function prompts the user to specify whether a given file should be protected or not! for flexibility
+
+    :return: the reultant option whether a or b
+    '''
     print("would you like this file to be ","(a)protected","(b)unprotected",sep="\n")
     access=str(input(""))
     return access
 
 def send_files(s:socket):
-    #something 
+    ''''
+    This function prompts the client to send a file to the server!
+
+    :param s: socket used to connect to the server
+    :return: nothing
+
+    '''
+    
     print("enter name of file you would like to send !")
-    filename=str(input(""))
-    access=password_prompt()
+    filename=str(input("")) #prompting user to enter filename
+    access=password_prompt() # prompting user to specify whether the file will be proctected or unprotected
    
-    while True:
+    while True:# while loop to loop until correct acces input is put in (a) or (b)
         if access.lower()=="a":
             
             print("enter name of user you would like to send to !")
 
-            dest_user=str(input(""))
+            dest_user=str(input("")) #if proctected then enter target user and pasword
 
             print("enter access password of file you are sending !")
             password=str(input(""))
             break
         elif access.lower()=="b":
-            
+            #if unprotected no password and target users are everyone
             dest_user="everyone"
             password="none"
             break
-        else:
+        else: 
             print("invalid input please enter either a or b ")
             access=password_prompt()   
     
     action="send"
     header =action.encode("utf-8")+b'\x02'
-    s.sendall(header)
-    with open(filename, 'rb') as f:
+    s.sendall(header) #sends information to the server to prepare to recieve files
+    with open(filename, 'rb') as f: #open given filename and reads the data as bytes
         data = f.read()
+
     filesize = len(data)
-    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    #TODO:check if tqm dictionary is in the standard library or specify its need in the report
+    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024) #progress bar to show progress of file download
+   
+   #header which is compromised of (target user),(password),(filename),(filesize),(data)
     header = dest_user.encode("utf-8")+b'\x03'+password.encode("utf-8")+b'\x04'+ filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
-    s.sendall(header + data)
+    s.sendall(header + data) #sends to server
     progress.update(filesize)
    
     print()
-    print(s.recv(4096).decode("utf-8"))
+    print(s.recv(4096).decode("utf-8")) #prints affirmation of completion fropm server
 
 def download_files(s:socket):
-     #something 
+     ''''
+    This function prompts the client to download a file from the server!
+
+    :param s: socket used to connect to the server
+    :return: nothing
+
+    ''' 
      
      print("enter name of file you would like to download !")
      filename=str(input(""))
