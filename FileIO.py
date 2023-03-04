@@ -7,3 +7,8 @@ class File:
          self.filename=filename
        
          self.data=data
+
+
+    def __repr__(self) :
+         return "File ('{}','{}','{}','{}')".format(self.username,self.password,self.filename,)
+              

@@ -1,4 +1,5 @@
 import sqlite3
+from FileIO import File
 
 def Create():
     conn=sqlite3.connect('Server_Database.db')
@@ -23,26 +24,33 @@ def Create():
     conn.commit()
     conn.close()
 
-    def Insert():
-        conn=sqlite3.connect('Server_Database.db')
-        c=conn.cursor()
+def Insert(f:File):
+    conn=sqlite3.connect('Server_Database.db')
+    c=conn.cursor()
+        
+    c.execute( "INSERT INTO Server_Files VALUES (:username, :password, :file, :data)",
+                {'username':f.username,
+                    'password':f.password,
+                    'file':f.filename,
+                    'data':f.data}
+    )
+
+    conn.commit()
+    conn.close()
+        
+def Update(f,l):
+
+    conn=sqlite3.connect('Server_Database.db')
+    c=conn.cursor()
 
 
-        conn.commit()
-        conn.close()
-    def Update():
+    conn.commit()
+    conn.close()
 
-        conn=sqlite3.connect('Server_Database.db')
-        c=conn.cursor()
-
-
-        conn.commit()
-        conn.close()
-
-    def Retrieve_Files_by_username():
-        conn=sqlite3.connect('Server_Database.db')
-        c=conn.cursor()
+def Retrieve_Files_by_username():
+    conn=sqlite3.connect('Server_Database.db')
+    c=conn.cursor()
 
 
-        conn.commit()
-        conn.close()
+    conn.commit()
+    conn.close()

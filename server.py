@@ -2,30 +2,45 @@ import socket
 import threading
 import tqdm
 from FileIO import File
+import database as db
 
 global files 
 files=[]
-directory="server_files"+r"/"
+# directory="server_files"+r"/"
 def Recieved_files(conn:socket,addy):
     
     while True:
             data = conn.recv(4096)
             if not data:
+                msg="no data was recieved "
+                conn.sendall(msg.encode("utf-8"))
                 break
-            filename=data[:data.index(b'\x00')].decode("utf-8")
-            files.append(filename)
+
+
+            filename=data[data.index(b'\x04')+1:data.index(b'\x00')].decode("utf-8")
+            #files.append(filename)
            # print(files)
-            filename = directory+filename
+            dest_username=data[:data.index(b'\x03')].decode("utf-8")
+            password=data[data.index(b'\x03')+1:data.index(b'\x04')].decode("utf-8")
+            
+           
             filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
             filedata = data[data.index(b'\x01')+1:]
+            
+            file = File(dest_username,password, filename,filedata)
+
             progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-            with open(filename, 'wb') as f:
-                f.write(filedata)
-                progress.update(len(filedata))
+            
+            progress.update(len(filedata))
                 
             break
+    
 
-    print(f" upload done from {addy}")    
+    db.Insert(file)
+    print (file)
+    print(f" upload done from {addy}")
+    msg="server recieved file "
+    conn.sendall(msg.encode("utf-8"))    
 
 
 def Display_files(conn:socket,addy):
