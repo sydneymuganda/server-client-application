@@ -6,7 +6,7 @@ import database as db
 
 global files 
 files=[]
-# directory="server_files"+r"/"
+directory="server_files"+r"/"
 def Recieved_files(conn:socket,addy):
     
     while True:
@@ -44,19 +44,23 @@ def Recieved_files(conn:socket,addy):
 
 
 def Display_files(conn:socket,addy):
-    l=len(files)
+    user=conn.recv(4096).decode("utf-8")
+    my_records=db.Retrieve_Files_by_username(user)
     s=""
-    #print(l)
+    l=len(my_records)
     #print(files)
     count=0
+
+    
     if l<1:
         s="no files available"
     else:
-        for file in files:
+        for file in my_records:
             count=+1
-            s=f"--->({count})."+file+"\n"+s
+            s=f"--->({count})."+file[2]+"\n"+s
     #print(s)        
     conn.sendall(s.encode("utf-8"))
+
 def upload_files(conn:socket,addy):
 
     filename=conn.recv(4096)
@@ -118,7 +122,7 @@ def main():
     host="127.0.0.1"
     server_socket.bind((host,port))
     server_socket.listen(5)
-    files=[]
+    db.Create()
     count=0
     while True:
         clientConn, address=server_socket.accept()

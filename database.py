@@ -27,14 +27,31 @@ def Create():
 def Insert(f:File):
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
+    
+    count=0
+    c.execute("SELECT * FROM Server_Files WHERE username=:username AND password=:password AND file=:file ",{'username':f.username, 'password':f.password,'file':f.filename})
+    records=c.fetchall()
         
-    c.execute( "INSERT INTO Server_Files VALUES (:username, :password, :file, :data)",
-                {'username':f.username,
-                    'password':f.password,
-                    'file':f.filename,
-                    'data':f.data}
-    )
-
+    for i in records:
+        if ((f.filename in i) and (f.username in i) and (f.password in i)):
+            count+=1
+            c.execute( """UPDATE Server_Files SET data= :data WHERE username=:username AND password=:password AND file=:file """,
+                      {'username':f.username, 
+                       'password':f.password,
+                       'file':f.filename,
+                       'data':f.data} )
+            print("updated")
+            
+    if count>1:
+        pass
+    else:
+        c.execute( "INSERT INTO Server_Files VALUES (:username, :password, :file, :data)",
+                    {'username':f.username,
+                        'password':f.password,
+                        'file':f.filename,
+                        'data':f.data}
+        )
+        print("inserted")
     conn.commit()
     conn.close()
         
@@ -47,10 +64,12 @@ def Update(f,l):
     conn.commit()
     conn.close()
 
-def Retrieve_Files_by_username():
+def Retrieve_Files_by_username(username):
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
-
-
+    
+    c.execute("SELECT * FROM Server_Files WHERE username={} OR username='everyone' ".format(username))
+    records=c.fetchall()
     conn.commit()
     conn.close()
+    return records

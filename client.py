@@ -11,10 +11,10 @@ def send_files(s:socket):
     print("enter name of file you would like to send !")
     filename=str(input(""))
     access=password_prompt()
-    status=""
+   
     while True:
         if access.lower()=="a":
-            status="p"
+            
             print("enter name of user you would like to send to !")
 
             dest_user=str(input(""))
@@ -23,9 +23,9 @@ def send_files(s:socket):
             password=str(input(""))
             break
         elif access.lower()=="b":
-            status="u"
+            
             dest_user="everyone"
-            password=None
+            password="none"
             break
         else:
             print("invalid input please enter either a or b ")
@@ -38,10 +38,11 @@ def send_files(s:socket):
         data = f.read()
     filesize = len(data)
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-    header = dest_user.encode("utf-8")+b'x03'+password.encode("utf-8")+b'x04'+access.encode("utf-8")+b'x05'+ filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
+    header = dest_user.encode("utf-8")+b'\x03'+password.encode("utf-8")+b'\x04'+ filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
     s.sendall(header + data)
     progress.update(filesize)
    
+    print()
     print(s.recv(4096).decode("utf-8"))
 
 def download_files(s:socket):
@@ -79,6 +80,8 @@ def view_files(s:socket):
     action="view"
     header =action.encode("utf-8")+b'\x02'
     s.sendall(header)
+
+    s.sendall(username.encode("utf-8"))
     
 
     
