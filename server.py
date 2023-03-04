@@ -64,15 +64,24 @@ def Display_files(conn:socket,addy):
 def upload_files(conn:socket,addy):
 
     filename=conn.recv(4096)
-    my_filename=filename[:filename.index(b'\x04')]
-    #print(filename)
-    filename = directory+my_filename
+    user=conn.recv(4096).decode("utf-8")
+    my_filename=filename[:filename.index(b'\x04')].decode("utf-8")
+    
+    
+    my_records=db.Retrieve_Files_by_filename(user,my_filename)
+    #filename = directory+my_filename
     with open(filename, 'rb') as f:
         filedata = f.read()
+
+        
     filesize = len(filedata)
 
     header = my_filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
     conn.sendall(header + filedata)
+
+    progress = tqdm.tqdm(range(filesize), f"Uploading {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+            
+    progress.update(filesize)
     #print("h")
 
 

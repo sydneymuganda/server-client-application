@@ -47,7 +47,7 @@ def send_files(s:socket):
 
 def download_files(s:socket):
      #something 
-
+     
      print("enter name of file you would like to download !")
      filename=str(input(""))
      action="request" 
@@ -55,6 +55,7 @@ def download_files(s:socket):
      s.sendall(header)
      header=filename.encode("utf-8")+b'\x04' 
      s.sendall(header)
+     s.sendall(username.encode("utf-8"))
      
      data = b''
      while True:

@@ -68,7 +68,24 @@ def Retrieve_Files_by_username(username):
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
     
-    c.execute("SELECT * FROM Server_Files WHERE username={} OR username='everyone' ".format(username))
+    c.execute("SELECT * FROM Server_Files WHERE username=:username OR username='everyone' ",{'username':username})
+    records=c.fetchall()
+    conn.commit()
+    conn.close()
+    return records
+
+def Retrieve_Files_by_filename(username,filename):
+    conn=sqlite3.connect('Server_Database.db')
+    c=conn.cursor()
+    
+    c.execute("SELECT * FROM Server_Files WHERE (username=:username AND file=:file) OR (username='everyone' AND file=:file2) ",
+              {
+                        'username':username,
+                        
+                        'file':filename,
+                        
+                        'file2':filename,
+              })
     records=c.fetchall()
     conn.commit()
     conn.close()
