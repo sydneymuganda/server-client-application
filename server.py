@@ -69,9 +69,43 @@ def upload_files(conn:socket,addy):
     
     
     my_records=db.Retrieve_Files_by_filename(user,my_filename)
+
+    l=len(my_records)
+    count=(0)
+    if l<1:
+        s="no files available"
+        return
+    else:
+        prompt="choose the file you would like to download!\n"
+        for file in my_records:
+            count=+1
+            s=f"--->({count})."+file[2]+"\n"+s
+        s=prompt+s    
+
+    conn.sendall(s.encode("utf-8"))    
+    
+    chosen_file=int(conn.recv(4096).decode("utf-8"))-1
+
+    if my_records[chosen_file][1]=="none":
+        conn.sendall("ok".encode("utf-8")) 
+        conn.recv(4096)
+        filedata=my_records[chosen_file][3]
+        conn.sendall("ok".encode("utf-8"))
+    else:
+        conn.sendall("Enter password".encode("utf-8"))  
+        password=  conn.recv(4096).decode("utf-8")  
+        if password==my_records[chosen_file][1]:
+            filedata=my_records[chosen_file][3]
+            conn.sendall("ok".encode("utf-8"))
+        else:
+            conn.sendall("invalid".encode("utf-8"))
+            return      
     #filename = directory+my_filename
-    with open(filename, 'rb') as f:
-        filedata = f.read()
+
+     
+
+    # with open(filename, 'rb') as f:
+    #     filedata = f.read()
 
         
     filesize = len(filedata)
@@ -79,11 +113,13 @@ def upload_files(conn:socket,addy):
     header = my_filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
     conn.sendall(header + filedata)
 
-    progress = tqdm.tqdm(range(filesize), f"Uploading {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
             
     progress.update(filesize)
-    #print("h")
-
+    print()
+    print(f" download done from {addy}")
+    msg="server sent file "
+    conn.sendall(msg.encode("utf-8"))    
 
 def handle_client(conn,addy):
     print(f"[ NEW CONNECTION ] at {addy} connected")

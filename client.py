@@ -56,24 +56,45 @@ def download_files(s:socket):
      header=filename.encode("utf-8")+b'\x04' 
      s.sendall(header)
      s.sendall(username.encode("utf-8"))
+
+
+     print(s.recv(4096).decode("utf-8"))
+
+     option=str(input("Enter file you would like to download:\n"))
+     s.sendall(option.encode("utf-8"))
+
+     feedback=s.recv(4096).decode("utf-8")
+
+     if feedback=="ok":
+         s.sendall("ok".encode("utf-8"))
+
+     else:
+         print(feedback.encode("utf-8")) 
+         reply=str(input(""))
+         s.sendall(reply.encode("utf-8"))  
+
+     acess_control=s.recv(4096).decode("utf-8")    
+
+     if acess_control!="ok":
+         print(acess_control)
+         return     
      
-     data = b''
-     while True:
-        recv = s.recv(4096)
-        if not recv:
-            break
-        data += recv
-        break
+     
+     data = s.recv(4096)
+        
      
 
      filename =data[:data.index(b'\x00')].decode("utf-8")
      filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
      filedata = data[data.index(b'\x01')+1:]
+     directory="downloaded_files"+r'/'+filename
+     progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+     progress.update()
 
-     with open(filename, 'wb') as f:
+     with open(directory, 'wb') as f:
         f.write(filedata)
 
-     #print("h")
+     print("succesfully downladed")
 
 def view_files(s:socket):
      
