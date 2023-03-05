@@ -43,23 +43,32 @@ def Recieved_files(conn:socket,addy):
             progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
             
             progress.update(len(filedata))
-                
+
+            db.Insert(file)
+            
+            print(f" upload done from {addy}")
+            msg="server recieved file "
+            conn.sendall(msg.encode("utf-8"))     
             break
     
 
-    db.Insert(file)
-    print (file)
-    print(f" upload done from {addy}")
-    msg="server recieved file "
-    conn.sendall(msg.encode("utf-8"))    
+       
 
 
 def Display_files(conn:socket,addy):
+    """
+    This function displays the files stored in the database for a given user.
+
+    :param conn: A socket object that represents a client-server connection.
+    :param addy: A tuple containing the IP address and port number of the client.
+
+    """
+
     user=conn.recv(4096).decode("utf-8")
     my_records=db.Retrieve_Files_by_username(user)
     s=""
     l=len(my_records)
-    #print(files)
+    
     count=0
 
     
@@ -69,10 +78,19 @@ def Display_files(conn:socket,addy):
         for file in my_records:
             count+=1
             s=s+f"--->({count})"+file[2]+"\n"
-    #print(s)        
+         
     conn.sendall(s.encode("utf-8"))
 
 def upload_files(conn:socket,addy):
+    """
+    This function allows the client to download a file from the server.
+
+    :param conn: A socket object that represents a client-server connection.
+    :param addy: A tuple containing the IP address and port number of the client.
+
+    """
+
+
     print("a")
     filename=conn.recv(4096)
     print("b")
@@ -115,13 +133,7 @@ def upload_files(conn:socket,addy):
         else:
             conn.sendall("invalid".encode("utf-8"))
             return      
-    #filename = directory+my_filename
-
-     
-
-    # with open(filename, 'rb') as f:
-    #     filedata = f.read()
-
+   
         
     filesize = len(filedata)
 
@@ -137,6 +149,16 @@ def upload_files(conn:socket,addy):
     conn.sendall(msg.encode("utf-8"))    
 
 def handle_client(conn,addy):
+    """
+    This function handles multithreded client-server connection by receiving client requests 
+    and invoking the appropriate function.
+    in so doing allows multiple client connections
+
+    :param conn: A socket object that represents a client-server connection.
+    :param addy: A tuple containing the IP address and port number of the client.
+    
+    """
+
     print(f"[ NEW CONNECTION ] at {addy} connected")
     
     msg=conn.recv(4096)
