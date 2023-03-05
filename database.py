@@ -10,6 +10,12 @@ import sqlite3
 from FileIO import File
 
 def Create():
+    """
+    Creates a SQLite database for storing file data, if it does not already exist.
+
+    Returns:
+        None
+    """
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
 
@@ -33,6 +39,16 @@ def Create():
     conn.close()
 
 def Insert(f:File):
+    """
+    Inserts a file into the Server_Files table in the database, or updates the data
+    for an existing file if it has the same username, password, and file name.
+
+    Args:
+        f (File): The File object to be inserted.
+
+    Returns:
+        None
+    """
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
     
@@ -48,7 +64,7 @@ def Insert(f:File):
                        'password':f.password,
                        'file':f.filename,
                        'data':f.data} )
-           # print("updated")
+        
             
     if count>=1:
         pass
@@ -59,11 +75,21 @@ def Insert(f:File):
                         'file':f.filename,
                         'data':f.data}
         )
-        #print("inserted")
+       
     conn.commit()
     conn.close()
         
-def Update(f,l):
+def Update(f:File):
+    """
+    Updates the Server_Files table in the database with the new data for a file.
+
+    Args:
+        f (File): The File object with the updated data.
+        
+
+    Returns:
+        None
+    """
 
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
@@ -73,6 +99,16 @@ def Update(f,l):
     conn.close()
 
 def Retrieve_Files_by_username(username):
+    """
+    Retrieves all files from the Server_Files table in the database 
+    with the given username.
+
+    Args:
+        username (str): The username associated with the files to retrieve.
+
+    Returns:
+        list: A list of tuples representing the retrieved files.
+    """
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
     
@@ -83,6 +119,17 @@ def Retrieve_Files_by_username(username):
     return records
 
 def Retrieve_Files_by_filename(username,filename):
+    """
+    Retrieves all files from the Server_Files table in the database 
+    with the given username and filename
+
+    Args:
+        username (str): The username associated with the files to retrieve.
+        filename (str): The flename associated with the files to retrieve
+
+    Returns:
+        list: A list of tuples representing the retrieved files.
+    """
     conn=sqlite3.connect('Server_Database.db')
     c=conn.cursor()
     
