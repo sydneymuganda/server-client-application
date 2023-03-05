@@ -1,3 +1,11 @@
+"""
+This script creates the application 
+to allow a server to send and recieve  to and from a client
+
+Author: Sydney Muganda (mgnsyd001@myuct.ac.za)
+Date: 20th february 2023
+"""
+
 import socket
 import threading
 import tqdm

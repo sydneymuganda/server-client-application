@@ -1,3 +1,11 @@
+"""
+This script creates the database to allow file data to be saved onto a database
+and specifies functions to be used
+
+Author: Sydney Muganda (mgnsyd001@myuct.ac.za)
+Date: 20th february 2023
+"""
+
 import sqlite3
 from FileIO import File
 
@@ -40,9 +48,9 @@ def Insert(f:File):
                        'password':f.password,
                        'file':f.filename,
                        'data':f.data} )
-            print("updated")
+           # print("updated")
             
-    if count>1:
+    if count>=1:
         pass
     else:
         c.execute( "INSERT INTO Server_Files VALUES (:username, :password, :file, :data)",
@@ -51,7 +59,7 @@ def Insert(f:File):
                         'file':f.filename,
                         'data':f.data}
         )
-        print("inserted")
+        #print("inserted")
     conn.commit()
     conn.close()
         

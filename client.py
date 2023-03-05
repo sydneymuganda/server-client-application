@@ -78,38 +78,44 @@ def download_files(s:socket):
     ''' 
      
      print("enter name of file you would like to download !")
-     filename=str(input(""))
+     filename=str(input("")) #prompt user to request the file they would like to download
      action="request" 
      header =action.encode("utf-8")+b'\x02' 
-     s.sendall(header)
+     s.sendall(header) #send a request message to server
      header=filename.encode("utf-8")+b'\x04'+username.encode("utf-8") 
-     s.sendall(header)
+     s.sendall(header) #sends a header which contains the filename and username of client
      
 
+     reply_message=s.recv(4096).decode("utf-8")
+     # waits to for feedback on available files and their status ie :protected or not
+     
+     
+     print(reply_message) 
+     if reply_message=="no files available":
+         return
+     
+     option=str(input("Enter file you would like to download:\n")) #enter option of file you would like to download
+     s.sendall(option.encode("utf-8")) #send the reply of what you requested
 
-     print(s.recv(4096).decode("utf-8"))
 
-     option=str(input("Enter file you would like to download:\n"))
-     s.sendall(option.encode("utf-8"))
-
-     feedback=s.recv(4096).decode("utf-8")
+     feedback=s.recv(4096).decode("utf-8") #recives feedback from server whether requested message requirs a password
 
      if feedback=="ok":
-         s.sendall("ok".encode("utf-8"))
+         s.sendall("ok".encode("utf-8")) #if not send back ok
 
      else:
          print(feedback.encode("utf-8")) 
          reply=str(input(""))
-         s.sendall(reply.encode("utf-8"))  
+         s.sendall(reply.encode("utf-8"))  #if yes send back the password
 
-     acess_control=s.recv(4096).decode("utf-8")    
+     acess_control=s.recv(4096).decode("utf-8") #waits for server to send back an ok for valid password 
 
-     if acess_control!="ok":
+     if acess_control!="ok": #if invalid will print invalid and end the program
          print(acess_control)
          return     
      
      data = b''
-     while True:
+     while True:#while loop to recieve the data as a header
         recv = s.recv(4096)
         if not recv:
             break
@@ -119,17 +125,17 @@ def download_files(s:socket):
         
      
 
-     filename =data[:data.index(b'\x00')].decode("utf-8")
-     filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
-     filedata = data[data.index(b'\x01')+1:]
-     directory="downloaded_files"+r'/'+filename
+     filename =data[:data.index(b'\x00')].decode("utf-8") #takes in the recieved filename
+     filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big') #takes in recieved filesize
+     filedata = data[data.index(b'\x01')+1:] #takes in file data
+     directory="downloaded_files"+r'/'+filename #location of saved files
      progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-     progress.update()
+     progress.update() #progress bar to show the the progress of download
 
-     with open(directory, 'wb') as f:
+     with open(directory, 'wb') as f: #write the file to the directory
         f.write(filedata)
 
-     print("succesfully downladed")
+     print("succesfully downladed")# print succesfully downloaded
 
 def view_files(s:socket):
      
