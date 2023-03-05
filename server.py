@@ -12,10 +12,14 @@ import tqdm
 from FileIO import File
 import database as db
 
-global files 
-files=[]
-directory="server_files"+r"/"
+
 def Recieved_files(conn:socket,addy):
+    """
+    This function receives files from the client, and saves them in the database.
+
+    :param conn: A socket object that represents a client-server connection.
+    :param addy: A tuple containing the IP address and port number of the client.
+    """
     
     while True:
             data = conn.recv(4096)
@@ -26,8 +30,7 @@ def Recieved_files(conn:socket,addy):
 
 
             filename=data[data.index(b'\x04')+1:data.index(b'\x00')].decode("utf-8")
-            #files.append(filename)
-           # print(files)
+            
             dest_username=data[:data.index(b'\x03')].decode("utf-8")
             password=data[data.index(b'\x03')+1:data.index(b'\x04')].decode("utf-8")
             

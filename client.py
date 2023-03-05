@@ -138,23 +138,45 @@ def download_files(s:socket):
      print("succesfully downladed")# print succesfully downloaded
 
 def view_files(s:socket):
-     
+    """
+       
+     Sends a request to the server to view the available files
+     according to client username  then displays them on the client console.
+
+        Args:
+            s: socket object that represents the client-server connection.
+
+        Returns:
+            None
+    
+    """
 
     action="view"
     header =action.encode("utf-8")+b'\x02'
-    s.sendall(header)
+    s.sendall(header) #sends the action header
 
-    s.sendall(username.encode("utf-8"))
+    s.sendall(username.encode("utf-8")) #sends the username
     
 
     
     message=s.recv(4096)
     
     print("----AVAILABLE FILES----")
-    print(message.decode("utf-8"))
+    print(message.decode("utf-8"))#prints available files
     
 
 def breakConnection(client_server:socket):
+    """
+    Sends a disconnection request to the server
+      and closes the client-server connection.
+
+    Args:
+        client_server: socket object that represents the client-server connection.
+
+    Returns:
+        None
+    """
+
     action="!DISCONNECT"
     
     header =action.encode("utf-8")+b'\x02'
@@ -163,6 +185,14 @@ def breakConnection(client_server:socket):
 
 
 def prompt():
+    """
+    prints out a message prompt for possible user input
+
+
+    Returns:
+        None
+    
+    """
     print("what would you like to do?")
     print("(1) send files.")
     print("(2) view  files.")
@@ -172,19 +202,25 @@ def prompt():
     
 
 def main():
+    """
+    Main function that handles user input and performs actions based on that input.
+
+    Returns:
+        None
+    """
     global port,host
     client_server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
     port=1969
     host="127.0.0.1"
 
-    client_server.connect((host,port))
+    client_server.connect((host,port)) #establishes connection
     global username
-    username=str(input("please enter your username:\n"))
+    username=str(input("please enter your username:\n")) #the clients username
     prompt()
     option="0"
 
-    while option!="4":
+    while option!="4":#loops until client disconnects
         option=str(input(""))
 
         if option=="1":
@@ -202,7 +238,7 @@ def main():
         prompt()
         
 
-    client_server.close()     
+    client_server.close()     #closes connection
 
 
 if __name__=="__main__":

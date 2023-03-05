@@ -1,3 +1,12 @@
+"""
+script to create a file object
+
+Author: Sydney Muganda (mgnsyd001@myuct.ac.za)
+Date: 20th february 2023
+
+"""
+
+
 class File:
     """
      
