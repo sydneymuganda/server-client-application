@@ -98,15 +98,17 @@ def upload_files(conn:socket,addy):
     my_filename=filename[:filename.index(b'\x04')].decode("utf-8")
     user=filename[filename.index(b'\x04')+1:].decode("utf-8")
     
-    print(user,my_filename)
+    # print(user,my_filename)
     
     my_records=db.Retrieve_Files_by_filename(user,my_filename)
-    
+    #print(my_records)
     l=len(my_records)
     count=(0)
     s=""
     if l<1:
         s="no files available"
+        conn.sendall(s.encode("utf-8"))
+        
         return
     else:
         prompt="choose the number of the file you would like to download!\n"

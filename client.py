@@ -8,6 +8,7 @@ Date: 20th february 2023
 import socket
 import tqdm
 
+
 def password_prompt():
     ''''
     This function prompts the user to specify whether a given file should be protected or not! for flexibility
@@ -92,6 +93,7 @@ def download_files(s:socket):
      
      print(reply_message) 
      if reply_message=="no files available":
+        
          prompt()
          return
      
