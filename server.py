@@ -91,9 +91,9 @@ def upload_files(conn:socket,addy):
     """
 
 
-    print("a")
+    
     filename=conn.recv(4096)
-    print("b")
+    
     
     my_filename=filename[:filename.index(b'\x04')].decode("utf-8")
     user=filename[filename.index(b'\x04')+1:].decode("utf-8")
@@ -109,7 +109,7 @@ def upload_files(conn:socket,addy):
         s="no files available"
         return
     else:
-        prompt="choose the file you would like to download!\n"
+        prompt="choose the number of the file you would like to download!\n"
         for file in my_records:
             count+=1
             s=s+f"--->({count})"+file[2]+"\n"

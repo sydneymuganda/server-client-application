@@ -92,6 +92,7 @@ def download_files(s:socket):
      
      print(reply_message) 
      if reply_message=="no files available":
+         prompt()
          return
      
      option=str(input("Enter file you would like to download:\n")) #enter option of file you would like to download
@@ -112,6 +113,7 @@ def download_files(s:socket):
 
      if acess_control!="ok": #if invalid will print invalid and end the program
          print(acess_control)
+         prompt()
          return     
      
      data = b''
@@ -129,7 +131,7 @@ def download_files(s:socket):
      filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big') #takes in recieved filesize
      filedata = data[data.index(b'\x01')+1:] #takes in file data
      directory="downloaded_files"+r'/'+filename #location of saved files
-     progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+     progress = tqdm.tqdm(range(len(filedata)), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
      progress.update() #progress bar to show the the progress of download
 
      with open(directory, 'wb') as f: #write the file to the directory
