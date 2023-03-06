@@ -94,20 +94,20 @@ def download_files(s:socket):
      print(reply_message) 
      if reply_message=="no files available":
         
-         prompt()
+         
          return
      
      option=str(input("Enter file you would like to download:\n")) #enter option of file you would like to download
      s.sendall(option.encode("utf-8")) #send the reply of what you requested
 
 
-     feedback=s.recv(4096).decode("utf-8") #recives feedback from server whether requested message requirs a password
+     feedback=s.recv(4096).decode("utf-8") #recives feedback from server whether requested file requires a password
 
      if feedback=="ok":
          s.sendall("ok".encode("utf-8")) #if not send back ok
 
      else:
-         print(feedback.encode("utf-8")) 
+         print(feedback) 
          reply=str(input(""))
          s.sendall(reply.encode("utf-8"))  #if yes send back the password
 
