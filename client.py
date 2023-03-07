@@ -7,8 +7,12 @@ Date: 20th february 2023
 """
 import socket
 import tqdm
-#TODO :fix file transfer for large data
+import os
+import math
 
+#TODO:check if tqm dictionary is in the standard library or specify its need in the report
+#TODO :fix file transfer for large data
+packet_size=1024
 
 def password_prompt():
     ''''
@@ -55,17 +59,29 @@ def send_files(s:socket):
     action="send"
     header =action.encode("utf-8")+b'\x02'
     s.sendall(header) #sends information to the server to prepare to recieve files
-    with open(filename, 'rb') as f: #open given filename and reads the data as bytes
-        data = f.read()
+    filesize=os.path.getsize(filename)
 
-    filesize = len(data)
-    #TODO:check if tqm dictionary is in the standard library or specify its need in the report
-    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024) #progress bar to show progress of file download
-   
-   #header which is compromised of (target user),(password),(filename),(filesize),(data)
+ #header which is compromised of (target user),(password),(filename),(filesize)
     header = dest_user.encode("utf-8")+b'\x03'+password.encode("utf-8")+b'\x04'+ filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
-    s.sendall(header + data) #sends to server
-    progress.update(filesize)
+    s.sendall(header) #sends to server
+
+    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024) #progress bar to show progress of file download
+    with open(filename, 'rb') as f: #open given filename and reads the data as bytes
+        while True:# read the bytes from the file
+            data = f.read(packet_size)
+            if not data:
+                s.sendall("end".encode("utf-8"))
+                break # file transmitting is done
+
+            
+            s.sendall(data)
+            # update the progress bar
+            progress.update(len(data))
+           
+            
+   
+  
+    
    
     print()
     print(s.recv(4096).decode("utf-8")) #prints affirmation of completion fropm server
@@ -118,29 +134,34 @@ def download_files(s:socket):
          print(acess_control)
          prompt()
          return     
-     
+     data=s.recv(4096)
+     filename =data[:data.index(b'\x00')].decode("utf-8") #takes in the recieved filename
+     filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big') #takes in recieved filesize
+     progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
      data = b''
-     while True:#while loop to recieve the data as a header
+     while True:#while loop to recieve the data 
         recv = s.recv(4096)
-        if not recv:
+        
+        if  recv=="server sent file ":
             break
         data += recv
-        break
-     
+        
+        progress.update(len(data)) #progress bar to show the the progress of download
         
      
 
-     filename =data[:data.index(b'\x00')].decode("utf-8") #takes in the recieved filename
-     filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big') #takes in recieved filesize
-     filedata = data[data.index(b'\x01')+1:] #takes in file data
+    
+     filedata = data
      directory="downloaded_files"+r'/'+filename #location of saved files
-     progress = tqdm.tqdm(range(len(filedata)), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-     progress.update() #progress bar to show the the progress of download
+     
+     
 
      with open(directory, 'wb') as f: #write the file to the directory
         f.write(filedata)
 
-     print("succesfully downladed")# print succesfully downloaded
+     print(recv.decode("utf-8"),"client succesfully downladed")# print succesfully downloaded
+
+
 
 def view_files(s:socket):
     """
