@@ -7,6 +7,7 @@ Date: 20th february 2023
 """
 import socket
 import tqdm
+#TODO :fix file transfer for large data
 
 
 def password_prompt():
