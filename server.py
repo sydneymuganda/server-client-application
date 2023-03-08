@@ -6,14 +6,12 @@ Author: Sydney Muganda (mgnsyd001@myuct.ac.za)
 Date: 20th february 2023
 """
 
-import math
 import socket
 import threading
 import tqdm
 from FileIO import File
 import database as db
 
-packet_size=1024
 
 def Recieved_files(conn:socket,addy):
     """
@@ -22,53 +20,40 @@ def Recieved_files(conn:socket,addy):
     :param conn: A socket object that represents a client-server connection.
     :param addy: A tuple containing the IP address and port number of the client.
     """
-    data_details=conn.recv(4096)
-    filedata=b''
-    filesize = int.from_bytes(data_details[data_details.index(b'\x00')+1:data_details.index(b'\x01')], byteorder='big')
-    filename=data_details[data_details.index(b'\x04')+1:data_details.index(b'\x00')].decode("utf-8")
     
-    progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-    
-    empty_file=False
-    count=0
     while True:
-            data = conn.recv(packet_size)
-            if  data==b"end"or data==b"" or filesize==len(filedata):
-               
-                if count==0: empty_file=True
+            data = conn.recv(4096)
+            if not data:
+                msg="no data was recieved "
+                conn.sendall(msg.encode("utf-8"))
                 break
 
 
+            filename=data[data.index(b'\x04')+1:data.index(b'\x00')].decode("utf-8")
+            
+            dest_username=data[:data.index(b'\x03')].decode("utf-8")
+            password=data[data.index(b'\x03')+1:data.index(b'\x04')].decode("utf-8")
+            
            
-            filedata = filedata+data
+            filesize = int.from_bytes(data[data.index(b'\x00')+1:data.index(b'\x01')], byteorder='big')
+            filedata = data[data.index(b'\x01')+1:]
             
-            #print(filedata)
+            file = File(dest_username,password, filename,filedata)
 
-            
+            progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
             
             progress.update(len(filedata))
-            count=count+1
+
+            db.Insert(file)
             
-            
-                
-            
+            print(f" upload done from {addy}")
+            msg="server recieved file "
+            conn.sendall(msg.encode("utf-8"))     
+            break
     
 
-    if empty_file:
-         msg="no file recieved "
-         conn.sendall(msg.encode("utf-8")) 
+       
 
-    else:        
-        dest_username=data_details[:data_details.index(b'\x03')].decode("utf-8")
-        password=data_details[data_details.index(b'\x03')+1:data_details.index(b'\x04')].decode("utf-8")
-                
-            
-            
-        file = File(dest_username,password, filename,filedata)
-        db.Insert(file)
-        print(f" upload done from {addy}")
-        msg="server recieved file "
-        conn.sendall(msg.encode("utf-8")) 
 
 def Display_files(conn:socket,addy):
     """
@@ -155,35 +140,16 @@ def upload_files(conn:socket,addy):
     filesize = len(filedata)
 
     header = my_filename.encode('utf-8') + b'\x00' + filesize.to_bytes(4, byteorder='big') + b'\x01'
-    conn.sendall(header ) #only sending header
+    conn.sendall(header + filedata)
 
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-    work_on_sections(conn,filedata,packet_size,progress)        
-    
+            
+    progress.update(filesize)
     print()
     print(f" download done from {addy}")
     msg="server sent file "
     conn.sendall(msg.encode("utf-8"))    
-def work_on_sections(s:socket,my_data, section_size,progress):
-    ''''
-    divides the data to be sent in sections
 
-    :param s: socket used to connect to the server
-    :param my_data: data in bytes to be sent
-    :param secction_size:byte buffer size
-    :param progress: progress bar
-    :return: nothing
-
-    ''' 
-    size = len(my_data)
-    num_sections = math.ceil((size + section_size - 1) // section_size ) # Round up division
-    start_index = 0
-    for section in range(num_sections):
-        end_index = min(start_index + section_size, size)
-        section_data = my_data[start_index:end_index]
-        s.sendall(section_data)
-        start_index = end_index  
-        progress.update(len(section))
 def handle_client(conn,addy):
     """
     This function handles multithreded client-server connection by receiving client requests 
@@ -256,6 +222,5 @@ def main():
 
 if __name__=="__main__":
     main()
-
 
 
